@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "88162328398",
+    "project_id": "movie-app-flutter-d4de8",
+    "storage_bucket": "movie-app-flutter-d4de8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:88162328398:android:50c9a489b04b387b37481f",
+        "android_client_info": {
+          "package_name": "com.alvonj.movie_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "88162328398-gr5gomtklkq53sol63o34cq9kpg0tr96.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.alvonj.movie_app",
+            "certificate_hash": "b016c68ce316933e75c966de7f3fa88846febbdf"
+          }
+        },
+        {
+          "client_id": "88162328398-1qdlqnasc61r0rejdbkc66hc68dn8e89.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCEysQRtONEZjkxge-q1r_KXjtRgr6nKZY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "88162328398-1qdlqnasc61r0rejdbkc66hc68dn8e89.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
