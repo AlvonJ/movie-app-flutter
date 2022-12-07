@@ -165,7 +165,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       ElevatedButton(
-                        onPressed: () async {
+                        onPressed: () {
                           final isValid = formKey.currentState!.validate();
 
                           if (!isValid) return;
@@ -177,24 +177,23 @@ class _RegisterPageState extends State<RegisterPage> {
                                       child: CircularProgressIndicator(
                                     color: Theme.of(context).primaryColor,
                                   )));
-                          try {
-                            final userRegister = await FirebaseAuth.instance
-                                .createUserWithEmailAndPassword(
-                                    email: emailController.text.trim(),
-                                    password: passwordController.text.trim());
 
-                            await users
-                                .doc(userRegister.user!.uid)
-                                .set({'history': {}});
-
-                            Navigator.of(context, rootNavigator: true).pop();
-
-                            context.goNamed('login');
-                          } on FirebaseAuthException catch (e) {
+                          FirebaseAuth.instance
+                              .createUserWithEmailAndPassword(
+                                  email: emailController.text.trim(),
+                                  password: passwordController.text.trim())
+                              .then((userRegister) => users
+                                  .doc(userRegister.user!.uid)
+                                  .set({'history': {}}))
+                              .then((_) =>
+                                  Navigator.of(context, rootNavigator: true)
+                                      .pop())
+                              .then((_) => context.goNamed('login'))
+                              .catchError((e) {
                             Navigator.of(context, rootNavigator: true).pop();
 
                             Utils.showSnackBarError(e.message);
-                          }
+                          });
                         },
                         style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(

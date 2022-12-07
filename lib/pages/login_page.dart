@@ -128,7 +128,7 @@ class _LoginPageState extends State<LoginPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       ElevatedButton(
-                        onPressed: () async {
+                        onPressed: () {
                           final isValid = formKey.currentState!.validate();
 
                           if (!isValid) return;
@@ -140,20 +140,20 @@ class _LoginPageState extends State<LoginPage> {
                                       child: CircularProgressIndicator(
                                     color: Theme.of(context).primaryColor,
                                   )));
-                          try {
-                            await FirebaseAuth.instance
-                                .signInWithEmailAndPassword(
-                                    email: emailController.text.trim(),
-                                    password: passwordController.text.trim());
 
-                            Navigator.of(context, rootNavigator: true).pop();
-
-                            context.goNamed('home');
-                          } on FirebaseAuthException catch (e) {
+                          FirebaseAuth.instance
+                              .signInWithEmailAndPassword(
+                                  email: emailController.text.trim(),
+                                  password: passwordController.text.trim())
+                              .then((_) =>
+                                  Navigator.of(context, rootNavigator: true)
+                                      .pop())
+                              .then((_) => context.goNamed('home'))
+                              .catchError((e) {
                             Navigator.of(context, rootNavigator: true).pop();
 
                             Utils.showSnackBarError(e.message);
-                          }
+                          });
                         },
                         style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(

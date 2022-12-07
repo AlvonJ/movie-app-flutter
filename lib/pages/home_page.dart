@@ -25,7 +25,7 @@ class HomePage extends StatelessWidget {
         selectedItemColor: Theme.of(context).primaryColor,
         unselectedItemColor: Colors.grey[600],
         type: BottomNavigationBarType.fixed,
-        onTap: (value) async {
+        onTap: (value) {
           switch (value) {
             case 0:
               context.goNamed('home');
@@ -37,8 +37,10 @@ class HomePage extends StatelessWidget {
               context.goNamed('history');
               break;
             case 3:
-              FirebaseAuth.instance.signOut();
-              context.goNamed('login');
+              FirebaseAuth.instance
+                  .signOut()
+                  .then((_) => context.goNamed('login'));
+
               break;
           }
         },
