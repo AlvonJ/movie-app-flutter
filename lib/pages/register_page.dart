@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:movie_app/models/utils.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -184,15 +186,25 @@ class _RegisterPageState extends State<RegisterPage> {
                                   password: passwordController.text.trim())
                               .then((userRegister) => users
                                   .doc(userRegister.user!.uid)
-                                  .set({'history': {}}))
-                              .then((_) =>
-                                  Navigator.of(context, rootNavigator: true)
-                                      .pop())
-                              .then((_) => context.goNamed('login'))
-                              .catchError((e) {
+                                  .set({'money': 0}))
+                              .then((_) {
                             Navigator.of(context, rootNavigator: true).pop();
 
-                            Utils.showSnackBarError(e.message);
+                            showTopSnackBar(
+                                Overlay.of(context) as OverlayState,
+                                displayDuration:
+                                    const Duration(milliseconds: 1500),
+                                const CustomSnackBar.success(
+                                    message:
+                                        'Success, your account has been created!'));
+
+                            context.goNamed('login');
+                          }).catchError((e) {
+                            Navigator.of(context, rootNavigator: true).pop();
+
+                            showTopSnackBar(Overlay.of(context) as OverlayState,
+                                CustomSnackBar.error(message: e.message));
+                            // Utils.showSnackBarError(e.message);
                           });
                         },
                         style: ElevatedButton.styleFrom(

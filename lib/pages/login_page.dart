@@ -1,7 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:movie_app/cubit/movies_cubit.dart';
 import 'package:movie_app/models/utils.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
+
+import '../cubit/money_cubit.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -19,6 +26,9 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    CollectionReference users = firestore.collection('users');
+
     return Scaffold(
       body: SafeArea(
           child: ListView(
@@ -127,44 +137,58 @@ class _LoginPageState extends State<LoginPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          final isValid = formKey.currentState!.validate();
+                      BlocBuilder<MoneyCubit, MoneyState>(
+                        builder: (context, state) {
+                          return ElevatedButton(
+                            onPressed: () {
+                              final isValid = formKey.currentState!.validate();
 
-                          if (!isValid) return;
+                              if (!isValid) return;
 
-                          showDialog(
-                              context: context,
-                              barrierDismissible: false,
-                              builder: (context) => Center(
-                                      child: CircularProgressIndicator(
-                                    color: Theme.of(context).primaryColor,
-                                  )));
+                              showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (context) => Center(
+                                          child: CircularProgressIndicator(
+                                        color: Theme.of(context).primaryColor,
+                                      )));
 
-                          FirebaseAuth.instance
-                              .signInWithEmailAndPassword(
-                                  email: emailController.text.trim(),
-                                  password: passwordController.text.trim())
-                              .then((_) =>
+                              FirebaseAuth.instance
+                                  .signInWithEmailAndPassword(
+                                      email: emailController.text.trim(),
+                                      password: passwordController.text.trim())
+                                  .then((value) {
+                                users.doc(value.user?.uid).get().then((value) {
+                                  final data =
+                                      value.data() as Map<String, dynamic>;
+                                  BlocProvider.of<MoneyCubit>(context)
+                                      .getSelectedMoney(data['money']);
+                                }).then((_) {
                                   Navigator.of(context, rootNavigator: true)
-                                      .pop())
-                              .then((_) => context.goNamed('home'))
-                              .catchError((e) {
-                            Navigator.of(context, rootNavigator: true).pop();
+                                      .pop();
+                                  context.goNamed('home');
+                                });
+                              }).catchError((e) {
+                                Navigator.of(context, rootNavigator: true)
+                                    .pop();
 
-                            Utils.showSnackBarError(e.message);
-                          });
+                                showTopSnackBar(
+                                    Overlay.of(context) as OverlayState,
+                                    CustomSnackBar.error(message: e.message));
+                              });
+                            },
+                            style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 100, vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16))),
+                            child: const Text(
+                              "Login",
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.w600),
+                            ),
+                          );
                         },
-                        style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 100, vertical: 14),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16))),
-                        child: const Text(
-                          "Login",
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.w600),
-                        ),
                       ),
                     ],
                   )

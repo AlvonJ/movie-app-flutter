@@ -5,14 +5,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:go_router/go_router.dart';
+import 'package:movie_app/cubit/money_cubit.dart';
 import 'package:movie_app/cubit/movies_cubit.dart';
 import 'package:movie_app/models/utils.dart';
 import 'package:movie_app/pages/detail_page.dart';
+import 'package:movie_app/pages/profile_page.dart';
+import 'package:movie_app/pages/ticket_page.dart';
 import 'package:movie_app/pages/history_page.dart';
 import 'package:movie_app/pages/home_page.dart';
 import 'package:movie_app/pages/login_page.dart';
 import 'package:movie_app/pages/register_page.dart';
 import 'package:movie_app/pages/seats_page.dart';
+import 'package:movie_app/pages/topup_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -65,22 +69,57 @@ class MyApp extends StatelessWidget {
       },
     ),
     GoRoute(
-      path: '/history',
-      name: 'history',
-      pageBuilder: (context, state) {
-        return CustomTransitionPage(
-          key: state.pageKey,
-          child: HistoryPage(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(
-              opacity:
-                  CurveTween(curve: Curves.easeInOutCirc).animate(animation),
-              child: child,
-            );
-          },
-        );
-      },
-    ),
+        path: '/history',
+        name: 'history',
+        pageBuilder: (context, state) {
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: HistoryPage(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity:
+                    CurveTween(curve: Curves.easeInOutCirc).animate(animation),
+                child: child,
+              );
+            },
+          );
+        },
+        routes: [
+          GoRoute(
+            path: 'ticket/:id',
+            name: 'ticket',
+            builder: (context, state) {
+              return TicketPage(id: state.params['id']!);
+            },
+          )
+        ]),
+    GoRoute(
+        path: '/profile',
+        name: 'profile',
+        pageBuilder: (context, state) {
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: ProfilePage(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity:
+                    CurveTween(curve: Curves.easeInOutCirc).animate(animation),
+                child: child,
+              );
+            },
+          );
+        },
+        routes: [
+          GoRoute(
+            path: 'topup',
+            name: 'topup',
+            builder: (context, state) {
+              return TopupPage();
+            },
+          ),
+        ]),
     GoRoute(
       path: '/login',
       name: 'login',
@@ -104,6 +143,9 @@ class MyApp extends StatelessWidget {
         BlocProvider<MoviesCubit>(
           create: (context) => MoviesCubit(),
         ),
+        BlocProvider<MoneyCubit>(
+          create: (context) => MoneyCubit(),
+        )
       ],
       child: MaterialApp.router(
         theme: ThemeData(
@@ -113,9 +155,9 @@ class MyApp extends StatelessWidget {
             elevatedButtonTheme: ElevatedButtonThemeData(
                 style: ButtonStyle(
                     backgroundColor:
-                        MaterialStateProperty.all(Color(0xfff4b33c)),
+                        MaterialStateProperty.all(const Color(0xfff4b33c)),
                     foregroundColor:
-                        MaterialStateProperty.all(Color(0xff222222)),
+                        MaterialStateProperty.all(const Color(0xff222222)),
                     shape: MaterialStateProperty.all(const StadiumBorder()))),
             textTheme: Theme.of(context)
                 .textTheme

@@ -36,6 +36,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.9.0"
+  barcode:
+    dependency: transitive
+    description:
+      name: barcode
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.2.3"
+  barcode_widget:
+    dependency: "direct main"
+    description:
+      name: barcode_widget
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.3"
   bloc:
     dependency: transitive
     description:
@@ -485,6 +499,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.2.1"
+  qr:
+    dependency: transitive
+    description:
+      name: qr
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.1"
   shelf:
     dependency: transitive
     description:
@@ -574,6 +595,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0"
+  top_snackbar_flutter:
+    dependency: "direct main"
+    description:
+      name: top_snackbar_flutter
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.0"
   typed_data:
     dependency: transitive
     description:

@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:movie_app/cubit/money_cubit.dart';
 import 'package:movie_app/cubit/movies_cubit.dart';
 import 'package:movie_app/models/ticket.dart';
 import 'package:movie_app/models/utils.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -19,9 +22,7 @@ class SeatsPage extends StatefulWidget {
 }
 
 class _SeatsPageState extends State<SeatsPage> {
-  late FirebaseFirestore firestore;
-  late CollectionReference tickets;
-  late List<DateTime> dates;
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   final user = FirebaseAuth.instance.currentUser;
   List<int> colorRowA = List.generate(6, (index) => 0);
@@ -45,23 +46,23 @@ class _SeatsPageState extends State<SeatsPage> {
 
   var now = DateTime.now();
 
-  var formatterMonth = DateFormat('MMM');
-  var formatterDay = DateFormat('dd');
-  var formatterCurrency = NumberFormat.currency(locale: "id_ID", symbol: "Rp");
-
-  @override
-  void initState() {
-    firestore = FirebaseFirestore.instance;
-    tickets = firestore.collection('tickets');
-
-    dates = List.generate(7, (index) => now.add(Duration(days: index)));
-    super.initState();
-  }
+  final formatterMonth = DateFormat('MMM');
+  final formatterDay = DateFormat('dd');
+  final formatterCurrency =
+      NumberFormat.currency(locale: "id_ID", symbol: "Rp");
+  final formatterTime = DateFormat('HH:mm');
+  final formatterDate = DateFormat('dd MMMM yyyy');
 
   @override
   Widget build(BuildContext context) {
+    final CollectionReference tickets = firestore.collection('tickets');
+    final CollectionReference transactions =
+        firestore.collection('transactions');
+    final CollectionReference users = firestore.collection('users');
+    List<DateTime> dates =
+        List.generate(7, (index) => now.add(Duration(days: index)));
+
     selectedSeat.sort((a, b) => a.compareTo(b));
-    print(selectedSeat);
 
     String price = formatterCurrency.format(selectedSeat.length * 43000);
     return Scaffold(
@@ -414,16 +415,53 @@ class _SeatsPageState extends State<SeatsPage> {
                                 elevation: 100,
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 50, vertical: 18)),
-                            onPressed: () async {
+                            onPressed: () {
                               if (selectedSeat.isEmpty) {
-                                Utils.showSnackBarError("Select seats first!");
+                                showTopSnackBar(
+                                    Overlay.of(context) as OverlayState,
+                                    const CustomSnackBar.error(
+                                        message: 'Select your seats first!'),
+                                    dismissType: DismissType.onSwipe,
+                                    dismissDirection: [
+                                      DismissDirection.horizontal,
+                                      DismissDirection.up
+                                    ]);
 
+                                return;
+                              }
+
+                              if (selectedSeat.length > 6) {
+                                showTopSnackBar(
+                                    Overlay.of(context) as OverlayState,
+                                    const CustomSnackBar.error(
+                                        message:
+                                            'Maximum seats are six for one order!'),
+                                    dismissType: DismissType.onSwipe,
+                                    dismissDirection: [
+                                      DismissDirection.horizontal,
+                                      DismissDirection.up
+                                    ]);
+                                return;
+                              }
+
+                              if (BlocProvider.of<MoneyCubit>(context)
+                                      .selectedMoney <=
+                                  selectedSeat.length * 43000) {
+                                showTopSnackBar(
+                                    Overlay.of(context) as OverlayState,
+                                    const CustomSnackBar.error(
+                                        message: 'Your money is not enough!'),
+                                    dismissType: DismissType.onSwipe,
+                                    dismissDirection: [
+                                      DismissDirection.horizontal,
+                                      DismissDirection.up
+                                    ]);
                                 return;
                               }
 
                               state.when(
                                   unselected: () => null,
-                                  selected: (movie) async {
+                                  selected: (movie) {
                                     showDialog(
                                         context: context,
                                         barrierDismissible: false,
@@ -441,8 +479,19 @@ class _SeatsPageState extends State<SeatsPage> {
                                         price: (selectedSeat.length * 43000),
                                         seats: selectedSeat);
 
-                                    try {
-                                      await tickets.add({
+                                    users.doc(user?.uid).get().then((value) {
+                                      final data =
+                                          value.data() as Map<String, dynamic>;
+
+                                      BlocProvider.of<MoneyCubit>(context)
+                                          .getSelectedMoney(data['money'] -
+                                              selectedSeat.length * 43000);
+                                      users.doc(user?.uid).update({
+                                        'money': data['money'] -
+                                            selectedSeat.length * 43000
+                                      });
+                                    }).then((_) {
+                                      tickets.add({
                                         'date': ticket.date,
                                         'time': ticket.time,
                                         'price': ticket.price,
@@ -454,23 +503,45 @@ class _SeatsPageState extends State<SeatsPage> {
                                           'poster_path':
                                               ticket.movie.poster_path,
                                         },
+                                      }).then((_) {
+                                        final now = DateTime.now();
+                                        transactions.add({
+                                          'uid': user?.uid,
+                                          'type': 'out',
+                                          'datetime': now,
+                                          'time': formatterTime.format(now),
+                                          'date': formatterDate.format(now),
+                                          'amount': selectedSeat.length * 43000
+                                        });
+                                      }).then((_) {
+                                        Navigator.of(context,
+                                                rootNavigator: true)
+                                            .pop();
+                                        showTopSnackBar(
+                                            Overlay.of(context) as OverlayState,
+                                            displayDuration: const Duration(
+                                                milliseconds: 1500),
+                                            const CustomSnackBar.success(
+                                                message:
+                                                    'New ticket has been bought!'));
+
+                                        BlocProvider.of<MoviesCubit>(context)
+                                            .unselectMovie();
+
+                                        context.goNamed('home');
+                                      }).catchError((e) {
+                                        Navigator.of(context,
+                                                rootNavigator: true)
+                                            .pop();
+
+                                        showTopSnackBar(
+                                            Overlay.of(context) as OverlayState,
+                                            displayDuration: const Duration(
+                                                milliseconds: 2000),
+                                            CustomSnackBar.error(
+                                                message: e.message));
                                       });
-
-                                      Navigator.of(context, rootNavigator: true)
-                                          .pop();
-
-                                      Utils.showSnackBarSuccess(
-                                          "New ticket has been bought!");
-
-                                      BlocProvider.of<MoviesCubit>(context)
-                                          .unselectMovie();
-                                      context.goNamed('home');
-                                    } on FirebaseException catch (e) {
-                                      Navigator.of(context, rootNavigator: true)
-                                          .pop();
-
-                                      Utils.showSnackBarError(e.message);
-                                    }
+                                    });
                                   });
                             },
                             child: const Text(

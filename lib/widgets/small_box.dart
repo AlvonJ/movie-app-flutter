@@ -35,6 +35,7 @@ class SmallBox extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           content,
+          textAlign: TextAlign.center,
           style: const TextStyle(fontWeight: FontWeight.w600),
         )
       ]),

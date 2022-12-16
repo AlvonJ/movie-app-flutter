@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:movie_app/widgets/history_card.dart';
@@ -10,8 +9,9 @@ import 'package:movie_app/widgets/loading_spinner.dart';
 class HistoryPage extends StatelessWidget {
   HistoryPage({super.key});
 
-  var formatter = DateFormat('dd MMMM yyyy');
-  var formatterCurrency = NumberFormat.currency(locale: "id_ID", symbol: "Rp");
+  final formatter = DateFormat('dd MMMM yyyy');
+  final formatterCurrency =
+      NumberFormat.currency(locale: "id_ID", symbol: "Rp ");
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +36,7 @@ class HistoryPage extends StatelessWidget {
               context.goNamed('history');
               break;
             case 2:
-              context.goNamed('history');
+              context.goNamed('profile');
               break;
             case 3:
               FirebaseAuth.instance
@@ -70,7 +70,10 @@ class HistoryPage extends StatelessWidget {
               ),
               const SizedBox(height: 50),
               FutureBuilder<QuerySnapshot>(
-                future: tickets.where('uid', isEqualTo: user?.uid).get(),
+                future: tickets
+                    .where('uid', isEqualTo: user?.uid)
+                    .orderBy('date', descending: true)
+                    .get(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     if (snapshot.data!.docs.isEmpty) {
@@ -83,7 +86,6 @@ class HistoryPage extends StatelessWidget {
                             fontWeight: FontWeight.w600),
                       ));
                     }
-
                     return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: snapshot.data!.docs.map((e) {
@@ -92,10 +94,15 @@ class HistoryPage extends StatelessWidget {
                               (data['date'] as Timestamp).toDate();
 
                           return HistoryCard(
-                              data: data,
-                              formatter: formatter,
-                              dateTime: dateTime,
-                              formatterCurrency: formatterCurrency);
+                            data: data,
+                            formatter: formatter,
+                            dateTime: dateTime,
+                            formatterCurrency: formatterCurrency,
+                            onTap: () {
+                              context.goNamed('ticket',
+                                  params: {'id': e.reference.id});
+                            },
+                          );
                         }).toList());
                   } else {
                     return const LoadingSpinner();

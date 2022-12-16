@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:movie_app/cubit/money_cubit.dart';
 import 'package:movie_app/cubit/movies_cubit.dart';
 import 'package:movie_app/models/movie.dart';
 import 'package:movie_app/widgets/category_card.dart';
@@ -34,7 +35,7 @@ class HomePage extends StatelessWidget {
               context.goNamed('history');
               break;
             case 2:
-              context.goNamed('history');
+              context.goNamed('profile');
               break;
             case 3:
               FirebaseAuth.instance
@@ -202,29 +203,6 @@ class HomePage extends StatelessWidget {
                     future: MovieServices().getListMovieData(1),
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
-                        // return ListView(
-                        //   scrollDirection: Axis.horizontal,
-                        //   padding: const EdgeInsets.only(left: 24),
-                        //   children: (snapshot.data ?? [])
-                        //       .map((movie) => Container(
-                        //             width: 200,
-                        //             height: 300,
-                        //             margin: const EdgeInsets.only(right: 24),
-                        //             child: InkWell(
-                        //               borderRadius: BorderRadius.circular(30),
-                        //               onTap: () {
-                        //                 context.goNamed('detail',
-                        //                     params: {'id': '${movie.id}'});
-                        //               },
-                        //               child: ClipRRect(
-                        //                   borderRadius: BorderRadius.circular(30),
-                        //                   child: Image.network(
-                        //                       'https://image.tmdb.org/t/p/w200${movie.poster_path}')),
-                        //             ),
-                        //           ))
-                        //       .toList(),
-                        // );
-
                         List<Movie> listMovies = snapshot.data as List<Movie>;
                         return ListView.builder(
                           scrollDirection: Axis.horizontal,
@@ -258,6 +236,7 @@ class HomePage extends StatelessWidget {
                       }
                     }),
               ),
+              const SizedBox(height: 50),
               // ElevatedButton(
               //     onPressed: () async {
               //       print(user);
