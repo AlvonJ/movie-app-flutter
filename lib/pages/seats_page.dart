@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:material_dialogs/material_dialogs.dart';
 import 'package:movie_app/cubit/money_cubit.dart';
 import 'package:movie_app/cubit/movies_cubit.dart';
 import 'package:movie_app/models/ticket.dart';
@@ -416,133 +417,198 @@ class _SeatsPageState extends State<SeatsPage> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 50, vertical: 18)),
                             onPressed: () {
-                              if (selectedSeat.isEmpty) {
-                                showTopSnackBar(
-                                    Overlay.of(context) as OverlayState,
-                                    const CustomSnackBar.error(
-                                        message: 'Select your seats first!'),
-                                    dismissType: DismissType.onSwipe,
-                                    dismissDirection: [
-                                      DismissDirection.horizontal,
-                                      DismissDirection.up
-                                    ]);
+                              Dialogs.materialDialog(
+                                  msg:
+                                      'Do you want to buy the ticket for \n${formatterCurrency.format(selectedSeat.length * 43000)}',
+                                  title: "Purchase Confirmation",
+                                  titleStyle: const TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20),
+                                  msgStyle: const TextStyle(
+                                      color: Colors.black, fontSize: 16),
+                                  msgAlign: TextAlign.center,
+                                  color: Colors.white,
+                                  context: context,
+                                  actions: [
+                                    IconButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      icon: const Icon(Icons.close_outlined,
+                                          semanticLabel: 'Cancel',
+                                          color: Colors.grey),
+                                    ),
+                                    IconButton(
+                                      onPressed: () {
+                                        if (selectedSeat.isEmpty) {
+                                          Navigator.of(context).pop();
 
-                                return;
-                              }
+                                          showTopSnackBar(
+                                              Overlay.of(context)
+                                                  as OverlayState,
+                                              const CustomSnackBar.error(
+                                                  message:
+                                                      'Select your seats first!'),
+                                              dismissType: DismissType.onSwipe,
+                                              dismissDirection: [
+                                                DismissDirection.horizontal,
+                                                DismissDirection.up
+                                              ]);
 
-                              if (selectedSeat.length > 6) {
-                                showTopSnackBar(
-                                    Overlay.of(context) as OverlayState,
-                                    const CustomSnackBar.error(
-                                        message:
-                                            'Maximum seats are six for one order!'),
-                                    dismissType: DismissType.onSwipe,
-                                    dismissDirection: [
-                                      DismissDirection.horizontal,
-                                      DismissDirection.up
-                                    ]);
-                                return;
-                              }
+                                          return;
+                                        }
 
-                              if (BlocProvider.of<MoneyCubit>(context)
-                                      .selectedMoney <=
-                                  selectedSeat.length * 43000) {
-                                showTopSnackBar(
-                                    Overlay.of(context) as OverlayState,
-                                    const CustomSnackBar.error(
-                                        message: 'Your money is not enough!'),
-                                    dismissType: DismissType.onSwipe,
-                                    dismissDirection: [
-                                      DismissDirection.horizontal,
-                                      DismissDirection.up
-                                    ]);
-                                return;
-                              }
+                                        if (selectedSeat.length > 6) {
+                                          Navigator.of(context).pop();
 
-                              state.when(
-                                  unselected: () => null,
-                                  selected: (movie) {
-                                    showDialog(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder: (context) => Center(
-                                                child:
-                                                    CircularProgressIndicator(
-                                              color: Theme.of(context)
-                                                  .primaryColor,
-                                            )));
+                                          showTopSnackBar(
+                                              Overlay.of(context)
+                                                  as OverlayState,
+                                              const CustomSnackBar.error(
+                                                  message:
+                                                      'Maximum seats are six for one order!'),
+                                              dismissType: DismissType.onSwipe,
+                                              dismissDirection: [
+                                                DismissDirection.horizontal,
+                                                DismissDirection.up
+                                              ]);
+                                          return;
+                                        }
 
-                                    Ticket ticket = Ticket(
-                                        movie: movie,
-                                        date: dates[selectedDateIndex],
-                                        time: times[selectedTimeIndex],
-                                        price: (selectedSeat.length * 43000),
-                                        seats: selectedSeat);
+                                        if (BlocProvider.of<MoneyCubit>(context)
+                                                .selectedMoney <=
+                                            selectedSeat.length * 43000) {
+                                          Navigator.of(context).pop();
 
-                                    users.doc(user?.uid).get().then((value) {
-                                      final data =
-                                          value.data() as Map<String, dynamic>;
+                                          showTopSnackBar(
+                                              Overlay.of(context)
+                                                  as OverlayState,
+                                              const CustomSnackBar.error(
+                                                  message:
+                                                      'Your money is not enough!'),
+                                              dismissType: DismissType.onSwipe,
+                                              dismissDirection: [
+                                                DismissDirection.horizontal,
+                                                DismissDirection.up
+                                              ]);
+                                          return;
+                                        }
 
-                                      BlocProvider.of<MoneyCubit>(context)
-                                          .getSelectedMoney(data['money'] -
-                                              selectedSeat.length * 43000);
-                                      users.doc(user?.uid).update({
-                                        'money': data['money'] -
-                                            selectedSeat.length * 43000
-                                      });
-                                    }).then((_) {
-                                      tickets.add({
-                                        'date': ticket.date,
-                                        'time': ticket.time,
-                                        'price': ticket.price,
-                                        'seats': ticket.seats,
-                                        'uid': user!.uid,
-                                        'movie': {
-                                          'id': ticket.movie.id,
-                                          'title': ticket.movie.title,
-                                          'poster_path':
-                                              ticket.movie.poster_path,
-                                        },
-                                      }).then((_) {
-                                        final now = DateTime.now();
-                                        transactions.add({
-                                          'uid': user?.uid,
-                                          'type': 'out',
-                                          'datetime': now,
-                                          'time': formatterTime.format(now),
-                                          'date': formatterDate.format(now),
-                                          'amount': selectedSeat.length * 43000
-                                        });
-                                      }).then((_) {
-                                        Navigator.of(context,
-                                                rootNavigator: true)
-                                            .pop();
-                                        showTopSnackBar(
-                                            Overlay.of(context) as OverlayState,
-                                            displayDuration: const Duration(
-                                                milliseconds: 1500),
-                                            const CustomSnackBar.success(
-                                                message:
-                                                    'New ticket has been bought!'));
+                                        state.when(
+                                            unselected: () => null,
+                                            selected: (movie) {
+                                              showDialog(
+                                                  context: context,
+                                                  barrierDismissible: false,
+                                                  builder: (context) => Center(
+                                                          child:
+                                                              CircularProgressIndicator(
+                                                        color: Theme.of(context)
+                                                            .primaryColor,
+                                                      )));
 
-                                        BlocProvider.of<MoviesCubit>(context)
-                                            .unselectMovie();
+                                              Ticket ticket = Ticket(
+                                                  movie: movie,
+                                                  date:
+                                                      dates[selectedDateIndex],
+                                                  time:
+                                                      times[selectedTimeIndex],
+                                                  price: (selectedSeat.length *
+                                                      43000),
+                                                  seats: selectedSeat);
 
-                                        context.goNamed('home');
-                                      }).catchError((e) {
-                                        Navigator.of(context,
-                                                rootNavigator: true)
-                                            .pop();
+                                              users
+                                                  .doc(user?.uid)
+                                                  .get()
+                                                  .then((value) {
+                                                final data = value.data()
+                                                    as Map<String, dynamic>;
 
-                                        showTopSnackBar(
-                                            Overlay.of(context) as OverlayState,
-                                            displayDuration: const Duration(
-                                                milliseconds: 2000),
-                                            CustomSnackBar.error(
-                                                message: e.message));
-                                      });
-                                    });
-                                  });
+                                                BlocProvider.of<MoneyCubit>(
+                                                        context)
+                                                    .getSelectedMoney(data[
+                                                            'money'] -
+                                                        selectedSeat.length *
+                                                            43000);
+                                                users.doc(user?.uid).update({
+                                                  'money': data['money'] -
+                                                      selectedSeat.length *
+                                                          43000
+                                                });
+                                              }).then((_) {
+                                                tickets.add({
+                                                  'date': ticket.date,
+                                                  'time': ticket.time,
+                                                  'price': ticket.price,
+                                                  'seats': ticket.seats,
+                                                  'uid': user!.uid,
+                                                  'movie': {
+                                                    'id': ticket.movie.id,
+                                                    'title': ticket.movie.title,
+                                                    'poster_path': ticket
+                                                        .movie.poster_path,
+                                                  },
+                                                }).then((_) {
+                                                  final now = DateTime.now();
+                                                  transactions.add({
+                                                    'uid': user?.uid,
+                                                    'type': 'out',
+                                                    'datetime': now,
+                                                    'time': formatterTime
+                                                        .format(now),
+                                                    'date': formatterDate
+                                                        .format(now),
+                                                    'amount':
+                                                        selectedSeat.length *
+                                                            43000
+                                                  });
+                                                }).then((_) {
+                                                  Navigator.of(context,
+                                                          rootNavigator: true)
+                                                      .pop();
+                                                  showTopSnackBar(
+                                                      Overlay.of(context)
+                                                          as OverlayState,
+                                                      displayDuration:
+                                                          const Duration(
+                                                              milliseconds:
+                                                                  1500),
+                                                      const CustomSnackBar
+                                                              .success(
+                                                          message:
+                                                              'New ticket has been bought!'));
+
+                                                  BlocProvider.of<MoviesCubit>(
+                                                          context)
+                                                      .unselectMovie();
+
+                                                  context.goNamed('home');
+                                                }).catchError((e) {
+                                                  Navigator.of(context,
+                                                          rootNavigator: true)
+                                                      .pop();
+
+                                                  showTopSnackBar(
+                                                      Overlay.of(context)
+                                                          as OverlayState,
+                                                      displayDuration:
+                                                          const Duration(
+                                                              milliseconds:
+                                                                  2000),
+                                                      CustomSnackBar.error(
+                                                          message: e.message));
+                                                });
+                                              });
+                                            });
+                                      },
+                                      icon: Icon(Icons.done_rounded,
+                                          size: 40,
+                                          semanticLabel: 'Yes',
+                                          color:
+                                              Theme.of(context).primaryColor),
+                                    ),
+                                  ]);
                             },
                             child: const Text(
                               "Book Ticket",
