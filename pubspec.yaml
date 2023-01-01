@@ -30,6 +30,7 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   barcode_widget: ^2.0.3
+  carousel_slider: ^4.2.1
   cloud_firestore: ^4.1.0
   cupertino_icons: ^1.0.2
   dio: ^4.0.6

@@ -12,6 +12,7 @@ class Movie with _$Movie {
       required String overview,
       required String poster_path,
       int? runtime,
+      String? backdrop_path,
       List<Map<String, dynamic>>? genres}) = _Movie;
 
   factory Movie.fromJson(Map<String, dynamic> json) => _$MovieFromJson(json);

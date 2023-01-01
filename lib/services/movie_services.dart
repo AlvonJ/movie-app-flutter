@@ -38,4 +38,22 @@ class MovieServices {
       return null;
     }
   }
+
+  Future<List<Movie>?> getComingSoonMovie(int pageNumber) async {
+    Dio dio = Dio();
+
+    try {
+      var result = await dio.get(
+          'https://api.themoviedb.org/3/movie/upcoming?api_key=68534b10080fedd6cb01a2a10681f045&language=en-US&page=$pageNumber');
+
+      List<Movie> movies = (result.data['results'] as List)
+          .map((e) => Movie.fromJson(e))
+          .toList();
+
+      return movies.take(15).toList();
+    } catch (e) {
+      log(e.toString());
+      return null;
+    }
+  }
 }

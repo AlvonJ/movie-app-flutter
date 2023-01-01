@@ -417,6 +417,20 @@ class _SeatsPageState extends State<SeatsPage> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 50, vertical: 18)),
                             onPressed: () {
+                              if (selectedSeat.isEmpty) {
+                                showTopSnackBar(
+                                    Overlay.of(context) as OverlayState,
+                                    const CustomSnackBar.error(
+                                        message: 'Select your seats first!'),
+                                    dismissType: DismissType.onSwipe,
+                                    dismissDirection: [
+                                      DismissDirection.horizontal,
+                                      DismissDirection.up
+                                    ]);
+
+                                return;
+                              }
+
                               Dialogs.materialDialog(
                                   msg:
                                       'Do you want to buy the ticket for \n${formatterCurrency.format(selectedSeat.length * 43000)}',
@@ -441,24 +455,6 @@ class _SeatsPageState extends State<SeatsPage> {
                                     ),
                                     IconButton(
                                       onPressed: () {
-                                        if (selectedSeat.isEmpty) {
-                                          Navigator.of(context).pop();
-
-                                          showTopSnackBar(
-                                              Overlay.of(context)
-                                                  as OverlayState,
-                                              const CustomSnackBar.error(
-                                                  message:
-                                                      'Select your seats first!'),
-                                              dismissType: DismissType.onSwipe,
-                                              dismissDirection: [
-                                                DismissDirection.horizontal,
-                                                DismissDirection.up
-                                              ]);
-
-                                          return;
-                                        }
-
                                         if (selectedSeat.length > 6) {
                                           Navigator.of(context).pop();
 

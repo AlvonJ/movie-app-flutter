@@ -9,6 +9,7 @@ import 'package:movie_app/cubit/money_cubit.dart';
 import 'package:movie_app/cubit/movies_cubit.dart';
 import 'package:movie_app/models/utils.dart';
 import 'package:movie_app/pages/detail_page.dart';
+import 'package:movie_app/pages/profile_edit_page.dart';
 import 'package:movie_app/pages/profile_page.dart';
 import 'package:movie_app/pages/ticket_page.dart';
 import 'package:movie_app/pages/history_page.dart';
@@ -116,7 +117,14 @@ class MyApp extends StatelessWidget {
             path: 'topup',
             name: 'topup',
             builder: (context, state) {
-              return TopupPage();
+              return const TopupPage();
+            },
+          ),
+          GoRoute(
+            path: 'edit',
+            name: 'edit',
+            builder: (context, state) {
+              return const ProfileEditPage();
             },
           ),
         ]),

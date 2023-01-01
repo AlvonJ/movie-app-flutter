@@ -73,6 +73,7 @@ class HistoryPage extends StatelessWidget {
                 future: tickets
                     .where('uid', isEqualTo: user?.uid)
                     .orderBy('date', descending: true)
+                    .limit(10)
                     .get(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {

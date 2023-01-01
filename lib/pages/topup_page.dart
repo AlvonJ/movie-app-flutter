@@ -186,6 +186,7 @@ class _TopupPageState extends State<TopupPage> {
                 future: transactions
                     .where('uid', isEqualTo: user?.uid)
                     .orderBy('datetime', descending: true)
+                    .limit(7)
                     .get(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {

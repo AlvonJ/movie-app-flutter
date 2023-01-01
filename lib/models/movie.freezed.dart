@@ -26,6 +26,7 @@ mixin _$Movie {
   String get overview => throw _privateConstructorUsedError;
   String get poster_path => throw _privateConstructorUsedError;
   int? get runtime => throw _privateConstructorUsedError;
+  String? get backdrop_path => throw _privateConstructorUsedError;
   List<Map<String, dynamic>>? get genres => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -45,6 +46,7 @@ abstract class $MovieCopyWith<$Res> {
       String overview,
       String poster_path,
       int? runtime,
+      String? backdrop_path,
       List<Map<String, dynamic>>? genres});
 }
 
@@ -67,6 +69,7 @@ class _$MovieCopyWithImpl<$Res, $Val extends Movie>
     Object? overview = null,
     Object? poster_path = null,
     Object? runtime = freezed,
+    Object? backdrop_path = freezed,
     Object? genres = freezed,
   }) {
     return _then(_value.copyWith(
@@ -94,6 +97,10 @@ class _$MovieCopyWithImpl<$Res, $Val extends Movie>
           ? _value.runtime
           : runtime // ignore: cast_nullable_to_non_nullable
               as int?,
+      backdrop_path: freezed == backdrop_path
+          ? _value.backdrop_path
+          : backdrop_path // ignore: cast_nullable_to_non_nullable
+              as String?,
       genres: freezed == genres
           ? _value.genres
           : genres // ignore: cast_nullable_to_non_nullable
@@ -115,6 +122,7 @@ abstract class _$$_MovieCopyWith<$Res> implements $MovieCopyWith<$Res> {
       String overview,
       String poster_path,
       int? runtime,
+      String? backdrop_path,
       List<Map<String, dynamic>>? genres});
 }
 
@@ -133,6 +141,7 @@ class __$$_MovieCopyWithImpl<$Res> extends _$MovieCopyWithImpl<$Res, _$_Movie>
     Object? overview = null,
     Object? poster_path = null,
     Object? runtime = freezed,
+    Object? backdrop_path = freezed,
     Object? genres = freezed,
   }) {
     return _then(_$_Movie(
@@ -160,6 +169,10 @@ class __$$_MovieCopyWithImpl<$Res> extends _$MovieCopyWithImpl<$Res, _$_Movie>
           ? _value.runtime
           : runtime // ignore: cast_nullable_to_non_nullable
               as int?,
+      backdrop_path: freezed == backdrop_path
+          ? _value.backdrop_path
+          : backdrop_path // ignore: cast_nullable_to_non_nullable
+              as String?,
       genres: freezed == genres
           ? _value._genres
           : genres // ignore: cast_nullable_to_non_nullable
@@ -178,6 +191,7 @@ class _$_Movie implements _Movie {
       required this.overview,
       required this.poster_path,
       this.runtime,
+      this.backdrop_path,
       final List<Map<String, dynamic>>? genres})
       : _genres = genres;
 
@@ -196,6 +210,8 @@ class _$_Movie implements _Movie {
   final String poster_path;
   @override
   final int? runtime;
+  @override
+  final String? backdrop_path;
   final List<Map<String, dynamic>>? _genres;
   @override
   List<Map<String, dynamic>>? get genres {
@@ -207,7 +223,7 @@ class _$_Movie implements _Movie {
 
   @override
   String toString() {
-    return 'Movie(id: $id, title: $title, vote_average: $vote_average, overview: $overview, poster_path: $poster_path, runtime: $runtime, genres: $genres)';
+    return 'Movie(id: $id, title: $title, vote_average: $vote_average, overview: $overview, poster_path: $poster_path, runtime: $runtime, backdrop_path: $backdrop_path, genres: $genres)';
   }
 
   @override
@@ -224,6 +240,8 @@ class _$_Movie implements _Movie {
             (identical(other.poster_path, poster_path) ||
                 other.poster_path == poster_path) &&
             (identical(other.runtime, runtime) || other.runtime == runtime) &&
+            (identical(other.backdrop_path, backdrop_path) ||
+                other.backdrop_path == backdrop_path) &&
             const DeepCollectionEquality().equals(other._genres, _genres));
   }
 
@@ -237,6 +255,7 @@ class _$_Movie implements _Movie {
       overview,
       poster_path,
       runtime,
+      backdrop_path,
       const DeepCollectionEquality().hash(_genres));
 
   @JsonKey(ignore: true)
@@ -261,6 +280,7 @@ abstract class _Movie implements Movie {
       required final String overview,
       required final String poster_path,
       final int? runtime,
+      final String? backdrop_path,
       final List<Map<String, dynamic>>? genres}) = _$_Movie;
 
   factory _Movie.fromJson(Map<String, dynamic> json) = _$_Movie.fromJson;
@@ -277,6 +297,8 @@ abstract class _Movie implements Movie {
   String get poster_path;
   @override
   int? get runtime;
+  @override
+  String? get backdrop_path;
   @override
   List<Map<String, dynamic>>? get genres;
   @override

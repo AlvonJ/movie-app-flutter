@@ -1,3 +1,4 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -68,21 +69,28 @@ class HomePage extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // StreamBuilder<User?>(
-                          //   stream: FirebaseAuth.instance.userChanges(),
-                          //   builder: (context, snapshot) {
-                          //     if (snapshot.hasData) {
-                          //       return Text("Sudah login: ${snapshot.data?.email}");
-                          //     } else {
-                          //       return const Text("Blm login");
-                          //     }
-                          //   },
-                          // ),
-                          const Text(
-                            "Welcome Alvon",
-                            style:
-                                TextStyle(color: Colors.white70, fontSize: 12),
-                          ),
+                          FutureBuilder<DocumentSnapshot>(
+                              future: users.doc(user?.uid).get(),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  final data = snapshot.data!.data()
+                                      as Map<String, dynamic>;
+
+                                  return Text(
+                                    data['name'] == null
+                                        ? 'Welcome back'
+                                        : 'Welcome ${data['name'].split(' ')[0]}',
+                                    style: const TextStyle(
+                                        color: Colors.white70, fontSize: 12),
+                                  );
+                                } else {
+                                  return const Text(
+                                    "Welcome back",
+                                    style: TextStyle(
+                                        color: Colors.white70, fontSize: 12),
+                                  );
+                                }
+                              }),
                           const SizedBox(
                             height: 10,
                           ),
@@ -96,12 +104,9 @@ class HomePage extends StatelessWidget {
                         ],
                       ),
                       const Spacer(),
-                      Container(
-                        padding: EdgeInsets.all(8),
-                        decoration: const BoxDecoration(
-                            shape: BoxShape.circle, color: Colors.grey),
-                        child: const Icon(Icons.person_outline,
-                            color: Colors.black87),
+                      const CircleAvatar(
+                        backgroundImage: AssetImage('./assets/img/profile.jpg'),
+                        radius: 24,
                       ),
                     ]),
                     const SizedBox(
@@ -234,6 +239,107 @@ class HomePage extends StatelessWidget {
                         return const LoadingSpinner();
                       }
                     }),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      SizedBox(height: 50),
+                      Text(
+                        "Coming Soon",
+                        style: TextStyle(
+                            fontWeight: FontWeight.w500, fontSize: 18),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                    ]),
+              ),
+              FutureBuilder(
+                future: MovieServices().getComingSoonMovie(1),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    List<Movie> listMovies = snapshot.data as List<Movie>;
+
+                    // return CarouselSlider(
+                    //     items: listMovies.map((e) {
+                    //       return Builder(
+                    //         builder: (context) {
+                    //           return Container(
+                    //             width: MediaQuery.of(context).size.width,
+                    //             margin:
+                    //                 const EdgeInsets.symmetric(horizontal: 5),
+                    //             decoration: BoxDecoration(
+                    //                 borderRadius: BorderRadius.circular(16),
+                    //                 image: DecorationImage(
+                    //                     image: NetworkImage(
+                    //                         'https://image.tmdb.org/t/p/w400${e.backdrop_path}'),
+                    //                     fit: BoxFit.cover)),
+                    //           );
+                    //         },
+                    //       );
+                    //     }).toList(),
+                    //     options: CarouselOptions(
+                    //       height: 300,
+                    //       aspectRatio: 16 / 9,
+                    //       viewportFraction: 0.8,
+                    //       enlargeCenterPage: true,
+                    //       enlargeFactor: 0.2,
+                    //     ));
+
+                    return CarouselSlider.builder(
+                        itemCount: listMovies.length,
+                        itemBuilder: (context, index, realIndex) {
+                          return Container(
+                            width: MediaQuery.of(context).size.width,
+                            margin: const EdgeInsets.symmetric(horizontal: 5),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                image: DecorationImage(
+                                    image: NetworkImage(
+                                        'https://image.tmdb.org/t/p/w400${listMovies[index].backdrop_path}'),
+                                    fit: BoxFit.cover)),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Spacer(),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 10),
+                                  decoration: BoxDecoration(
+                                      color: Colors.black.withOpacity(0.4)),
+                                  child: Text(
+                                    listMovies[index].title,
+                                    textAlign: TextAlign.start,
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20),
+                                  ),
+                                ),
+                                const SizedBox(height: 10)
+                              ],
+                            ),
+                          );
+                        },
+                        options: CarouselOptions(
+                          height: 300,
+                          initialPage: 0,
+                          aspectRatio: 16 / 9,
+                          viewportFraction: 0.8,
+                          enlargeCenterPage: true,
+                          enlargeFactor: 0.2,
+                          autoPlay: true,
+                          autoPlayInterval: const Duration(seconds: 3),
+                          autoPlayAnimationDuration:
+                              const Duration(milliseconds: 1000),
+                          autoPlayCurve: Curves.fastOutSlowIn,
+                        ));
+                  } else {
+                    return const LoadingSpinner();
+                  }
+                },
               ),
               const SizedBox(height: 50),
               // ElevatedButton(

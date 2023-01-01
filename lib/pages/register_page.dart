@@ -184,9 +184,14 @@ class _RegisterPageState extends State<RegisterPage> {
                               .createUserWithEmailAndPassword(
                                   email: emailController.text.trim(),
                                   password: passwordController.text.trim())
-                              .then((userRegister) => users
-                                  .doc(userRegister.user!.uid)
-                                  .set({'money': 0}))
+                              .then((userRegister) =>
+                                  users.doc(userRegister.user!.uid).set({
+                                    'money': 0,
+                                    'name': null,
+                                    'email': userRegister.user!.email,
+                                    'phone': null,
+                                    'address': null
+                                  }))
                               .then((_) {
                             Navigator.of(context, rootNavigator: true).pop();
 
