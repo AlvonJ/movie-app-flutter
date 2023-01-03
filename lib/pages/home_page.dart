@@ -104,10 +104,35 @@ class HomePage extends StatelessWidget {
                         ],
                       ),
                       const Spacer(),
-                      const CircleAvatar(
-                        backgroundImage: AssetImage('./assets/img/profile.jpg'),
-                        radius: 24,
-                      ),
+                      FutureBuilder<DocumentSnapshot>(
+                          future: users.doc(user?.uid).get(),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              final data =
+                                  snapshot.data!.data() as Map<String, dynamic>;
+
+                              if (data['image_url'] == null ||
+                                  data['image_url'] == '') {
+                                return const CircleAvatar(
+                                  backgroundImage:
+                                      AssetImage('./assets/img/profile.jpg'),
+                                  radius: 24,
+                                );
+                              }
+
+                              return CircleAvatar(
+                                backgroundImage:
+                                    NetworkImage(data['image_url']),
+                                radius: 24,
+                              );
+                            } else {
+                              return const CircleAvatar(
+                                backgroundImage:
+                                    AssetImage('./assets/img/profile.jpg'),
+                                radius: 24,
+                              );
+                            }
+                          }),
                     ]),
                     const SizedBox(
                       height: 30,

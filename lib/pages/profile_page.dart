@@ -66,11 +66,31 @@ class ProfilePage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           const SizedBox(height: 30),
-                          const CircleAvatar(
-                            backgroundImage:
-                                AssetImage('./assets/img/profile.jpg'),
-                            radius: 46,
-                          ),
+                          FutureBuilder<DocumentSnapshot>(
+                              future: users.doc(user?.uid).get(),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  final data = snapshot.data!.data()
+                                      as Map<String, dynamic>;
+
+                                  if (data['image_url'] == null ||
+                                      data['image_url'] == '') {
+                                    return const CircleAvatar(
+                                      backgroundImage: AssetImage(
+                                          './assets/img/profile.jpg'),
+                                      radius: 46,
+                                    );
+                                  }
+
+                                  return CircleAvatar(
+                                    backgroundImage:
+                                        NetworkImage(data['image_url']),
+                                    radius: 46,
+                                  );
+                                } else {
+                                  return const LoadingSpinner();
+                                }
+                              }),
                           const SizedBox(height: 16),
                           state.when(
                             selected: (money) {

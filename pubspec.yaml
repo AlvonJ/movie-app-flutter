@@ -37,11 +37,13 @@ dependencies:
   equatable: ^2.0.5
   firebase_auth: ^4.1.4
   firebase_core: ^2.3.0
+  firebase_storage: ^11.0.10
   flutter:
     sdk: flutter
   flutter_bloc: ^8.1.1
   freezed_annotation: ^2.2.0
   go_router: ^5.1.5
+  image_picker: ^0.8.6
   intl: ^0.17.0
   json_annotation: ^4.7.0
   material_dialogs: ^1.1.3

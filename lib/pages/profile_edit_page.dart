@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:movie_app/widgets/loading_spinner.dart';
+import 'package:movie_app/widgets/user_image_picker.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
@@ -16,13 +20,23 @@ class ProfileEditPage extends StatefulWidget {
 class _ProfileEditPageState extends State<ProfileEditPage> {
   final formKey = GlobalKey<FormState>();
 
-  Map<String, dynamic> profileData = {'name': '', 'phone': '', 'address': ''};
+  Map<String, dynamic> profileData = {
+    'name': '',
+    'phone': '',
+    'address': '',
+  };
+
+  File? _userImageFile;
+  void _pickedImage(File image) {
+    _userImageFile = image;
+  }
 
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     CollectionReference users = firestore.collection('users');
+    FirebaseStorage storage = FirebaseStorage.instance;
 
     return Scaffold(
         appBar: AppBar(
@@ -51,6 +65,19 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                           child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                const SizedBox(height: 40),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    data['image_url'] == null ||
+                                            data['image_url'] == ''
+                                        ? UserImagePicker(_pickedImage)
+                                        : UserImagePicker(
+                                            _pickedImage,
+                                            defaultImage: data['image_url'],
+                                          ),
+                                  ],
+                                ),
                                 const SizedBox(height: 40),
                                 TextFormField(
                                   initialValue: data['email'] ?? '',
@@ -105,7 +132,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                                   keyboardType: TextInputType.name,
                                   cursorColor: Theme.of(context).primaryColor,
                                   onSaved: (value) {
-                                    profileData['name'] = value;
+                                    profileData['name'] = value!.trim();
                                   },
                                   style: const TextStyle(
                                       color: Colors.white70, fontSize: 18),
@@ -150,7 +177,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                                   keyboardType: TextInputType.phone,
                                   cursorColor: Theme.of(context).primaryColor,
                                   onSaved: (value) {
-                                    profileData['phone'] = value;
+                                    profileData['phone'] = value!.trim();
                                   },
                                   style: const TextStyle(
                                       color: Colors.white70, fontSize: 18),
@@ -200,7 +227,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                                   keyboardType: TextInputType.streetAddress,
                                   cursorColor: Theme.of(context).primaryColor,
                                   onSaved: (value) {
-                                    profileData['address'] = value;
+                                    profileData['address'] = value!.trim();
                                   },
                                   style: const TextStyle(
                                       color: Colors.white70, fontSize: 18),
@@ -241,7 +268,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                                 const SizedBox(height: 40),
                                 Center(
                                   child: ElevatedButton(
-                                      onPressed: () {
+                                      onPressed: () async {
                                         final isValid =
                                             formKey.currentState!.validate();
 
@@ -258,15 +285,30 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                                                 )));
                                         formKey.currentState!.save();
 
-                                        users
-                                            .doc(user!.uid)
-                                            .update(profileData)
-                                            .then((_) {
+                                        try {
+                                          final ref = storage
+                                              .ref()
+                                              .child('user_image')
+                                              .child('${user!.uid}.jpg');
+
+                                          if (_userImageFile != null) {
+                                            await ref.putFile(_userImageFile!);
+
+                                            final url =
+                                                await ref.getDownloadURL();
+
+                                            profileData['image_url'] = url;
+                                          }
+
+                                          await users
+                                              .doc(user.uid)
+                                              .update(profileData);
+
                                           Navigator.of(context,
                                                   rootNavigator: true)
                                               .pop();
                                           context.goNamed('profile');
-                                        }).catchError((e) {
+                                        } on FirebaseException catch (e) {
                                           Navigator.of(context,
                                                   rootNavigator: true)
                                               .pop();
@@ -275,9 +317,8 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                                               Overlay.of(context)
                                                   as OverlayState,
                                               CustomSnackBar.error(
-                                                  message: e.message));
-                                        });
-                                        ;
+                                                  message: e.toString()));
+                                        }
                                       },
                                       style: ElevatedButton.styleFrom(
                                           fixedSize: const Size(180, 50)),
