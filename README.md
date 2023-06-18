@@ -20,7 +20,7 @@ Movie App is a mobile application for booking movie tickets. Built using Flutter
 
 | Login                                     | Home                                     |
 | ----------------------------------------- | ---------------------------------------- |
-| ![Login page](assets/img/screenshot1.png) | ![Home page](assets/img/screenshot1.png) |
+| ![Login page](assets/img/screenshot1.png) | ![Home page](assets/img/screenshot2.png) |
 
 | Movie Detail                                     | Seats                                     |
 | ------------------------------------------------ | ----------------------------------------- |
