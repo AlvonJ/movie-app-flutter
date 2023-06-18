@@ -1,41 +1,41 @@
 {
   "project_info": {
-    "project_number": "88162328398",
-    "project_id": "movie-app-flutter-d4de8",
-    "storage_bucket": "movie-app-flutter-d4de8.appspot.com"
+    "project_number": "257716425938",
+    "project_id": "pet-app-flutter",
+    "storage_bucket": "pet-app-flutter.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:88162328398:android:50c9a489b04b387b37481f",
+        "mobilesdk_app_id": "1:257716425938:android:4f45688612d7b48bc8090b",
         "android_client_info": {
-          "package_name": "com.alvonj.movie_app"
+          "package_name": "com.petapp.pet_app"
         }
       },
       "oauth_client": [
         {
-          "client_id": "88162328398-gr5gomtklkq53sol63o34cq9kpg0tr96.apps.googleusercontent.com",
+          "client_id": "257716425938-hu2knj9h7nhhsnp7a3krm1q31pbkhr2r.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.alvonj.movie_app",
+            "package_name": "com.petapp.pet_app",
             "certificate_hash": "b016c68ce316933e75c966de7f3fa88846febbdf"
           }
         },
         {
-          "client_id": "88162328398-1qdlqnasc61r0rejdbkc66hc68dn8e89.apps.googleusercontent.com",
+          "client_id": "257716425938-8lv1n2etu3f7un9f82bs99josbtso4d2.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCEysQRtONEZjkxge-q1r_KXjtRgr6nKZY"
+          "current_key": "AIzaSyDDC-o2SEqVOoSMvt8X7GHu0K3gKsnChpw"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "88162328398-1qdlqnasc61r0rejdbkc66hc68dn8e89.apps.googleusercontent.com",
+              "client_id": "257716425938-8lv1n2etu3f7un9f82bs99josbtso4d2.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
