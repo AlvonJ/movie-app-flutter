@@ -2,7 +2,7 @@
 
 Movie App is a mobile application for booking movie tickets. Built using Flutter.
 
-## Techologies and Libraries
+## Technologies and Libraries
 
 - Flutter
 - Dart
